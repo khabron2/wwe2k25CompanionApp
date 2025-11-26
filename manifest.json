@@ -1,0 +1,21 @@
+{
+  "short_name": "WWE 2K25",
+  "name": "WWE 2K25 Companion App",
+  "icons": [
+    {
+      "src": "https://image.pollinations.ai/prompt/WWE%202K25%20companion%20app%20icon%20logo%20symbol%20letter%20W%20red%20and%20black%20gradient%20glossy%20square%20vector%20art%20minimalist?width=192&height=192&nologo=true",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://image.pollinations.ai/prompt/WWE%202K25%20companion%20app%20icon%20logo%20symbol%20letter%20W%20red%20and%20black%20gradient%20glossy%20square%20vector%20art%20minimalist?width=512&height=512&nologo=true",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "orientation": "portrait"
+}

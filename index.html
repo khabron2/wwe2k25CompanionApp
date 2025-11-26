@@ -2,8 +2,21 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>WWE 2K25 COMPANION APP</title>
+    
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="WWE 2K25" />
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://image.pollinations.ai/prompt/WWE%202K25%20companion%20app%20icon%20logo%20symbol%20letter%20W%20red%20and%20black%20gradient%20glossy%20square%20vector%20art%20minimalist?width=32&height=32&nologo=true" />
+    <link rel="icon" type="image/png" sizes="16x16" href="https://image.pollinations.ai/prompt/WWE%202K25%20companion%20app%20icon%20logo%20symbol%20letter%20W%20red%20and%20black%20gradient%20glossy%20square%20vector%20art%20minimalist?width=16&height=16&nologo=true" />
+    <link rel="apple-touch-icon" href="https://image.pollinations.ai/prompt/WWE%202K25%20companion%20app%20icon%20logo%20symbol%20letter%20W%20red%20and%20black%20gradient%20glossy%20square%20vector%20art%20minimalist?width=180&height=180&nologo=true" />
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
@@ -36,6 +49,10 @@
       .no-scrollbar {
           -ms-overflow-style: none;  /* IE and Edge */
           scrollbar-width: none;  /* Firefox */
+      }
+      /* PWA Safe Area */
+      body {
+        padding-top: env(safe-area-inset-top);
       }
     </style>
   <script type="importmap">

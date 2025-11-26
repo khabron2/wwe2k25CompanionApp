@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Heart, History, User, Moon, Sun } from 'lucide-react';
+import { Settings, Heart, History, User, Moon, Sun, Download, Smartphone } from 'lucide-react';
 
 const Profile: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
 
   useEffect(() => {
     // Check initial state from html class
     setIsDark(document.documentElement.classList.contains('dark'));
+
+    // Listen for PWA install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    });
   }, []);
 
   const toggleTheme = () => {
@@ -21,6 +30,16 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setIsInstallable(false);
+    }
+    setDeferredPrompt(null);
+  };
+
   return (
     <div className="p-6 min-h-screen">
        <div className="flex items-center gap-4 mb-8">
@@ -32,6 +51,27 @@ const Profile: React.FC = () => {
            <p className="text-sm text-slate-500 dark:text-slate-400">Cuenta Pro</p>
          </div>
        </div>
+
+       {/* Install Banner - Only shows if installable */}
+       {isInstallable && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg text-white flex items-center justify-between">
+             <div className="flex items-center gap-3">
+                <div className="bg-white/20 p-2 rounded-lg">
+                   <Smartphone size={24} />
+                </div>
+                <div>
+                   <h3 className="font-bold text-sm">Instalar App</h3>
+                   <p className="text-xs text-blue-100">Añadir a pantalla de inicio</p>
+                </div>
+             </div>
+             <button 
+               onClick={handleInstallClick}
+               className="bg-white text-blue-600 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm active:scale-95 transition-transform"
+             >
+               Instalar
+             </button>
+          </div>
+       )}
 
        <div className="space-y-4">
         {/* Theme Toggle */}
