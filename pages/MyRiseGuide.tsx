@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Split } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Split, Users, Crown, Star, UserPlus, Swords } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { loadProgress, saveProgress } from '../services/supabase';
 
@@ -8,6 +8,7 @@ interface ChapterBlockProps {
   number: number;
   unlocked: boolean;
   completed: boolean;
+  colorClass: string;
   children?: React.ReactNode;
 }
 
@@ -16,9 +17,10 @@ const ChapterBlock: React.FC<ChapterBlockProps> = ({
   number,
   unlocked, 
   completed: isDone,
+  colorClass,
   children 
 }) => (
-  <div className={`relative rounded-xl overflow-hidden shadow-sm border transition-all duration-500 ${unlocked ? 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 opacity-100' : 'bg-gray-100 dark:bg-slate-900 border-transparent opacity-60 grayscale'}`}>
+  <div className={`relative rounded-xl overflow-hidden shadow-sm border transition-all duration-500 ${unlocked ? `bg-white dark:bg-slate-900 ${colorClass} opacity-100` : 'bg-gray-100 dark:bg-slate-900 border-transparent opacity-60 grayscale'}`}>
     {!unlocked && (
       <div className="absolute inset-0 z-20 bg-gray-200/50 dark:bg-black/50 backdrop-blur-[1px] flex items-center justify-center">
          <div className="bg-slate-900 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg font-bold text-sm">
@@ -26,9 +28,9 @@ const ChapterBlock: React.FC<ChapterBlockProps> = ({
          </div>
       </div>
     )}
-    <div className="p-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 flex justify-between items-center">
+    <div className={`p-4 border-b ${unlocked ? colorClass : 'border-transparent'} bg-gradient-to-r from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 flex justify-between items-center`}>
       <h2 className="font-black text-lg text-slate-800 dark:text-white uppercase tracking-wide">
-        Capítulo {number}: <span className="text-blue-600 dark:text-blue-400">{title}</span>
+        Capítulo {number}: <span className={unlocked ? 'text-slate-900 dark:text-white' : 'text-slate-500'}>{title}</span>
       </h2>
       {isDone ? (
          <span className="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded dark:bg-green-900/30 dark:text-green-400 flex items-center gap-1">
@@ -51,8 +53,7 @@ interface MissionItemProps {
   title: string;
   desc: string;
   rewards?: React.ReactNode;
-  group?: string[];
-  lockedByPath?: boolean;
+  tags?: React.ReactNode;
 }
 
 const MyRiseGuide: React.FC = () => {
@@ -66,120 +67,59 @@ const MyRiseGuide: React.FC = () => {
     load();
   }, []);
 
-  const toggleTask = (taskId: string, group: string[] = []) => {
-    // Check if locked by exclusivity
-    if (isTaskDisabled(taskId, group)) return;
-
+  const toggleTask = (taskId: string) => {
     const newCompleted = { ...completed, [taskId]: !completed[taskId] };
     setCompleted(newCompleted);
     saveProgress('myrise', newCompleted);
   };
 
-  const isTaskDisabled = (taskId: string, group: string[]) => {
-    if (completed[taskId]) return false; // Can always uncheck self
-    return group.some(id => completed[id]); // Disabled if another in group is checked
-  };
-
-  const isAnyCompleted = (ids: string[]) => ids.some(id => completed[id]);
   const areAllCompleted = (ids: string[]) => ids.every(id => completed[id]);
 
-  // --- PROGRESS LOGIC ---
+  // --- PROGRESS LOGIC: MUTINY ---
+  const c1 = ['mr-c1-1'];
+  const c2 = ['mr-c2-1'];
+  const c3 = ['mr-c3-1'];
+  const c4 = ['mr-c4-m-1', 'mr-c4-f-1']; 
+  const c5 = ['mr-c5-1'];
+  const c6 = ['mr-c6-1'];
+  const c7 = ['mr-c7-1'];
+  const c8 = ['mr-c8-1'];
+  const c9 = ['mr-c9-reclaim', 'mr-c9-conquer'];
 
-  // Chapter 1: Needs both missions
-  const ch1Tasks = ['c1-m1', 'c1-m2'];
-  const isCh1Done = areAllCompleted(ch1Tasks);
-
-  // Chapter 2: Needs 1 of 3 paths
-  const ch2Group = ['c2-m1', 'c2-m2', 'c2-m3'];
-  const isCh2Done = isAnyCompleted(ch2Group);
-  const isCh2Unlocked = isCh1Done;
-
-  // Chapter 3: Needs 1 of 3 paths
-  const ch3Group = ['c3-m1', 'c3-m2', 'c3-m3'];
-  const isCh3Done = isAnyCompleted(ch3Group);
-  const isCh3Unlocked = isCh2Unlocked && isCh2Done;
-
-  // Chapter 4: Needs 1 Male path OR 1 Female path
-  const ch4MaleGroup = ['c4-ma', 'c4-mb', 'c4-mc'];
-  const ch4FemaleGroup = ['c4-fa', 'c4-fb', 'c4-fc'];
-  const isCh4Done = isAnyCompleted(ch4MaleGroup) || isAnyCompleted(ch4FemaleGroup);
-  const isCh4Unlocked = isCh3Unlocked && isCh3Done;
-
-  // Chapter 5: Needs 1 mission
-  const ch5Tasks = ['c5-m1'];
-  const isCh5Done = areAllCompleted(ch5Tasks);
-  const isCh5Unlocked = isCh4Unlocked && isCh4Done;
-
-  // Chapter 6: Needs 1 Male Helper AND 1 Female Helper
-  const ch6MaleGroup = ['c6-m1', 'c6-m2', 'c6-m3', 'c6-m4'];
-  const ch6FemaleGroup = ['c6-f1', 'c6-f2', 'c6-f3', 'c6-f4'];
-  const isCh6Done = isAnyCompleted(ch6MaleGroup) && isAnyCompleted(ch6FemaleGroup);
-  const isCh6Unlocked = isCh5Unlocked && isCh5Done;
-
-  // Chapter 7: Needs 1 mission
-  const ch7Tasks = ['c7-m1'];
-  const isCh7Done = areAllCompleted(ch7Tasks);
-  const isCh7Unlocked = isCh6Unlocked && isCh6Done;
-
-  // Chapter 8: Needs 1 mission
-  const ch8Tasks = ['c8-m1'];
-  const isCh8Done = areAllCompleted(ch8Tasks);
-  const isCh8Unlocked = isCh7Unlocked && isCh7Done;
-
-  // Chapter 9: Reclaim vs Conquer
-  // Reclaim Logic: 1 Ally Path + Finale
-  const ch9ReclaimAllyGroup = ['c9r-a', 'c9r-b', 'c9r-c'];
-  const isReclaimPathActive = isAnyCompleted(ch9ReclaimAllyGroup);
-  
-  // Conquer Logic: 2 Linear missions
-  const ch9ConquerTasks = ['c9c-m1', 'c9c-m2'];
-  const isConquerPathActive = isAnyCompleted(ch9ConquerTasks);
-
-  const isCh9Unlocked = isCh8Unlocked && isCh8Done;
-
-  const currentChapter = () => {
-    if (!isCh1Done) return 1;
-    if (!isCh2Done) return 2;
-    if (!isCh3Done) return 3;
-    if (!isCh4Done) return 4;
-    if (!isCh5Done) return 5;
-    if (!isCh6Done) return 6;
-    if (!isCh7Done) return 7;
-    if (!isCh8Done) return 8;
-    return 9;
-  };
+  const isUnlocked = (prevChapterIds: string[]) => prevChapterIds.some(id => completed[id]);
 
   const MissionItem: React.FC<MissionItemProps> = ({ 
     id, 
     title, 
     desc, 
-    rewards, 
-    group = [],
-    lockedByPath = false 
+    rewards,
+    tags
   }) => {
     const isChecked = completed[id];
-    const isDisabled = isTaskDisabled(id, group) || lockedByPath;
 
     return (
-      <div className={`p-4 transition-all duration-300 ${isChecked ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''} ${isDisabled ? 'opacity-40 bg-gray-50 dark:bg-slate-950' : ''}`}>
+      <div className={`p-4 transition-all duration-300 ${isChecked ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
         <div className="flex items-start gap-4">
           <button 
-            onClick={() => toggleTask(id, group)}
-            disabled={isDisabled}
-            className={`mt-1 flex-shrink-0 transition-all ${isChecked ? 'text-blue-600 dark:text-blue-400' : isDisabled ? 'text-gray-300 dark:text-slate-800 cursor-not-allowed' : 'text-gray-300 dark:text-slate-600 hover:text-blue-400'}`}
+            onClick={() => toggleTask(id)}
+            className={`mt-1 flex-shrink-0 transition-all ${isChecked ? 'text-blue-600 dark:text-blue-400' : 'text-gray-300 dark:text-slate-600 hover:text-blue-400'}`}
           >
             {isChecked ? <CheckCircle2 size={24} fill="currentColor" className="text-white dark:text-slate-900" /> : <Circle size={24} />}
           </button>
           <div className="flex-1">
-            <h3 className={`font-bold text-lg mb-1 ${isChecked ? 'text-slate-500 line-through decoration-2 decoration-blue-500/50' : isDisabled ? 'text-slate-400 dark:text-slate-600' : 'text-slate-900 dark:text-white'}`}>
-              {title}
-            </h3>
+            <div className="flex flex-wrap gap-2 mb-1 items-center">
+                <h3 className={`font-bold text-lg ${isChecked ? 'text-slate-500 line-through decoration-2 decoration-blue-500/50' : 'text-slate-900 dark:text-white'}`}>
+                {title}
+                </h3>
+                {tags}
+            </div>
+            
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-3 leading-relaxed">
               {desc}
             </p>
             
             {rewards && (
-              <div className={`bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30 transition-opacity ${isDisabled ? 'opacity-50' : ''}`}>
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30">
                 <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase mb-2">
                   <Trophy size={14} /> Recompensas
                 </div>
@@ -194,221 +134,236 @@ const MyRiseGuide: React.FC = () => {
     );
   };
 
+  const Tag = ({ text, color = 'blue' }: { text: string, color?: string }) => (
+    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-${color}-100 text-${color}-700 dark:bg-${color}-900/40 dark:text-${color}-300 border border-${color}-200 dark:border-${color}-800`}>
+        {text}
+    </span>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pb-20 transition-colors duration-300">
       {/* Header */}
       <div className="bg-slate-900 text-white p-6 pb-12 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://image.pollinations.ai/prompt/wwe%20wrestling%20ring%20ropes%20blue%20neon%20lights%20smoky%20arena%20background%20dark%20cinematic?width=800&height=400&nologo=true')] bg-cover bg-center" />
+        <div className="absolute inset-0 opacity-20 bg-[url('https://image.pollinations.ai/prompt/wrestling%20ring%20mutiny%20rebellion%20crowd%20signs%20dark%20atmosphere?width=800&height=400&nologo=true')] bg-cover bg-center" />
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center text-slate-300 hover:text-white mb-4 transition-colors">
             <ArrowLeft size={18} className="mr-1" /> Volver
           </Link>
-          <h1 className="text-3xl font-black italic tracking-tighter mb-2">MyRISE</h1>
-          <p className="text-slate-400 font-medium">Guía Completa Paso a Paso</p>
+          <h1 className="text-3xl font-black italic tracking-tighter mb-2">MyRISE: MUTINY</h1>
+          <p className="text-slate-400 font-medium max-w-lg">Guía de desbloqueables por capítulo. Descubre cómo conseguir todas las arenas, atuendos y personajes ocultos.</p>
         </div>
       </div>
 
-      <div className="max-w-screen-lg mx-auto px-4 -mt-6 relative z-20">
+      <div className="max-w-screen-lg mx-auto px-4 -mt-6 relative z-20 space-y-6">
         
-        {/* Progress Card */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-lg border border-slate-100 dark:border-slate-800 mb-6 flex items-center justify-between">
-           <div>
-             <h3 className="font-bold text-slate-800 dark:text-white">Capítulo Actual</h3>
-             <p className="text-xs text-slate-500">
-                {currentChapter() === 9 ? 'Final del Juego' : `Estás en el Capítulo ${currentChapter()}`}
-             </p>
-           </div>
-           <div className="flex items-end gap-1">
-              <span className="text-4xl font-black text-blue-600">{currentChapter() - 1}</span>
-              <span className="text-sm font-bold text-slate-400 mb-1">/ 9</span>
-           </div>
+        {/* Intro Info */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex gap-4 items-start">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+                <Users size={24} />
+            </div>
+            <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-sm">Historia Dual</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Esta historia requiere dos personajes creados (Hombre y Mujer). Las recompensas varían drásticamente según el <strong>Trasfondo</strong> (Background) y la <strong>Personalidad</strong> que elijas para ellos.
+                </p>
+            </div>
         </div>
 
-        <div className="space-y-6 pb-12">
-          
-          {/* Chapter 1 */}
-          <ChapterBlock title="UNA NUEVA ERA" number={1} unlocked={true} completed={isCh1Done}>
-             <MissionItem 
-                id="c1-m1" 
-                title="Noche del Draft" 
-                desc="Elige la personalidad de tu primer personaje (conversación con Cathy Kelley)."
-                rewards={<ul className="list-disc space-y-1"><li>Conjunto Triple H</li><li>Conjunto Nick Aldis</li></ul>}
-             />
-             <MissionItem 
-                id="c1-m2" 
-                title="Objetivo: Número Uno" 
-                desc='Elige "Promoción Rival" con Adam Pearce para desbloquear Japan Dome.'
-                rewards={<ul className="list-disc space-y-1"><li>Remera Mutiny (Hombre/Mujer)</li></ul>}
-             />
-          </ChapterBlock>
-
-          {/* Chapter 2 */}
-          <ChapterBlock title="MOTÍN" number={2} unlocked={isCh2Unlocked} completed={isCh2Done}>
-             <div className="p-3 bg-blue-50 dark:bg-slate-800 text-xs text-blue-600 dark:text-blue-400 font-bold border-b border-blue-100 dark:border-slate-700 flex items-center gap-2">
-               <Split size={14} /> Elige un camino (Bloquea los otros)
-             </div>
-             <MissionItem 
-                id="c2-m1" 
-                group={ch2Group}
-                title="Historia A: Llegada del Rival" 
-                desc='Elegir "Promoción Rival" como trasfondo.'
-                rewards={<ul className="list-disc"><li>Arena Japan Dome</li></ul>}
-             />
-             <MissionItem 
-                id="c2-m2"
-                group={ch2Group}
-                title="Historia B: Cómplice Independiente" 
-                desc='Elegir "Indies" como trasfondo.'
-                rewards={<span className="italic opacity-70">Sin recompensas extra</span>}
-             />
-             <MissionItem 
-                id="c2-m3"
-                group={ch2Group}
-                title="Historia C: Asistencia MMA" 
-                desc='Elegir "MMA" como trasfondo.'
-                rewards={<span className="italic opacity-70">Sin recompensas extra</span>}
-             />
-          </ChapterBlock>
-
-          {/* Chapter 3 */}
-          <ChapterBlock title="UNIR" number={3} unlocked={isCh3Unlocked} completed={isCh3Done}>
-             <div className="p-3 bg-blue-50 dark:bg-slate-800 text-xs text-blue-600 dark:text-blue-400 font-bold border-b border-blue-100 dark:border-slate-700 flex items-center gap-2">
-               <Split size={14} /> Elige personalidad de 2do personaje
-             </div>
-             <MissionItem 
-                id="c3-m1"
-                group={ch3Group}
-                title="Historia A: NX-Secuestrados" 
-                desc='Personalidad: Atrevido y Descarado.'
-                rewards={<ul className="list-disc"><li>Arena NXT Mutiny</li><li>Títulos NXT Unity</li><li>Mánager Secuestrado</li></ul>}
-             />
-             <MissionItem 
-                id="c3-m2"
-                group={ch3Group}
-                title="Historia B: Unificar y Unirse" 
-                desc='Personalidad: Cómico y Divertido.'
-                rewards={<ul className="list-disc"><li>Arena NXT Mutiny</li><li>Títulos NXT Unity</li><li>Títulos Unificados</li></ul>}
-             />
-             <MissionItem 
-                id="c3-m3"
-                group={ch3Group}
-                title="Historia C: Haz el Truco" 
-                desc='Personalidad: Calculador y Estratégico.'
-                rewards={<ul className="list-disc"><li>Arena NXT Mutiny</li><li>Títulos NXT Unity</li></ul>}
-             />
-          </ChapterBlock>
-
-          {/* Chapter 4 */}
-          <ChapterBlock title="INVESTIGAR" number={4} unlocked={isCh4Unlocked} completed={isCh4Done}>
-             <div className="bg-slate-100 dark:bg-slate-800 p-2 text-xs font-black uppercase text-slate-500 text-center">Historias Masculinas (Elige 1)</div>
-             {ch4MaleGroup.map((id, idx) => (
-               <MissionItem
-                 key={id}
-                 id={id}
-                 group={[...ch4MaleGroup, ...ch4FemaleGroup]} 
-                 title={["A: Rompiendo la Competencia", "B: Payaseando", "C: Candidato de Terceros"][idx]}
-                 desc={["Personalidad: Atrevido", "Personalidad: Cómico", "Personalidad: Calculador"][idx]}
-                 rewards={idx === 1 ? "Armas de Payaso (Bocina, Zapato, Martillo...)" : idx === 2 ? "Arena WCW nWo + Remera" : "Campeonato NXT Mutiny (Roto)"}
-               />
-             ))}
-             
-             <div className="bg-slate-100 dark:bg-slate-800 p-2 text-xs font-black uppercase text-slate-500 text-center border-t border-slate-200 dark:border-slate-700">Historias Femeninas (Elige 1)</div>
-             {ch4FemaleGroup.map((id, idx) => (
-               <MissionItem
-                 key={id}
-                 id={id}
-                 group={[...ch4MaleGroup, ...ch4FemaleGroup]}
-                 title={["A: El Trabajo en el Archivo", "B: La Trinidad Profana", "C: Falsa Bandera"][idx]}
-                 desc={["Personalidad: Atrevida", "Personalidad: Cómica", "Personalidad: Calculadora"][idx]}
-                 rewards={idx === 0 ? "Chosen, Arena Estatal" : idx === 1 ? "Conjuntos de Bruja" : "Máscaras Mutiny"}
-               />
-             ))}
-          </ChapterBlock>
-
-          {/* Chapter 5 */}
-          <ChapterBlock title="DEFENDER" number={5} unlocked={isCh5Unlocked} completed={isCh5Done}>
+        <ChapterBlock title="PARTNERS" number={1} unlocked={true} completed={areAllCompleted(c1)} colorClass="border-slate-200 dark:border-slate-700">
             <MissionItem 
-                id="c5-m1"
-                title="¿Estás listo?" 
-                desc="Se desbloquea con cualquier personalidad."
-                rewards={<ul className="list-disc"><li>Arena NXT No Mercy Mutiny</li><li>Atuendo CM Punk Mutiny</li></ul>}
-             />
-          </ChapterBlock>
+                id="mr-c1-1" 
+                title="Elección de Personalidades" 
+                desc="Completa el capítulo inicial. Las recompensas dependen de las elecciones de diálogo." 
+                rewards={<ul className="list-disc space-y-1"><li>Traje Triple H</li><li>Traje Nick Aldis</li></ul>}
+            />
+        </ChapterBlock>
 
-          {/* Chapter 6 */}
-          <ChapterBlock title="REUNIR" number={6} unlocked={isCh6Unlocked} completed={isCh6Done}>
-            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-xs text-amber-700 dark:text-amber-400 font-bold border-b border-amber-100 dark:border-amber-900/30">
-               ⚠️ Elige 1 Hombre Y 1 Mujer
-             </div>
-             
-             <div className="bg-slate-100 dark:bg-slate-800 p-2 text-xs font-black uppercase text-slate-500 text-center">Ayuda Masculina (Elige 1)</div>
-             <MissionItem id="c6-m1" group={ch6MaleGroup} title="Drew McIntyre" desc="Army of Punkness" rewards="Sin extra" />
-             <MissionItem id="c6-m2" group={ch6MaleGroup} title="Jey Uso" desc="Blood Money" rewards="Sin extra" />
-             <MissionItem id="c6-m3" group={ch6MaleGroup} title="Seth Rollins" desc="Shielded From Mutiny" rewards="Ropa The Shield, Seth Casual" />
-             <MissionItem id="c6-m4" group={ch6MaleGroup} title="Cody Rhodes (2da Partida)" desc="Temporal Legacy" rewards="Arenas WM31, RAW 2011, Stardust..." />
+        <ChapterBlock title="MUTINY" number={2} unlocked={isUnlocked(c1)} completed={areAllCompleted(c2)} colorClass="border-red-200 dark:border-red-900">
+            <MissionItem 
+                id="mr-c2-1" 
+                title="El Pasado del Compañero" 
+                desc="Este desbloqueable depende exclusivamente del trasfondo (Background) que elegiste para tu 2do personaje." 
+                rewards={
+                    <div className="mt-1 space-y-1">
+                        <div className="flex justify-between border-b border-amber-200/50 pb-1"><span>Si es "Rival Promotion"</span> <span className="font-bold">Arena Japan Dome</span></div>
+                        <div className="flex justify-between text-slate-400"><span>Si es Indies/MMA</span> <span>Sin Recompensa</span></div>
+                    </div>
+                }
+            />
+        </ChapterBlock>
 
-             <div className="bg-slate-100 dark:bg-slate-800 p-2 text-xs font-black uppercase text-slate-500 text-center border-t border-slate-200 dark:border-slate-700">Ayuda Femenina (Elige 1)</div>
-             <MissionItem id="c6-f1" group={ch6FemaleGroup} title="Becky Lynch" desc="Mending Fences" rewards="Ropa Asuka Mutiny, Bayley '15" />
-             <MissionItem id="c6-f2" group={ch6FemaleGroup} title="Jade Cargill" desc="The Recruit" rewards="Jade Casual" />
-             <MissionItem id="c6-f3" group={ch6FemaleGroup} title="Charlotte Flair" desc="Influence The Influencer" rewards="Ropa Charlotte '14/'17/'19" />
-             <MissionItem id="c6-f4" group={ch6FemaleGroup} title="Rhea Ripley (2da Partida)" desc="Mami’s On Top Again" rewards="Rhea '17/'20" />
-          </ChapterBlock>
+        <ChapterBlock title="UNITE" number={3} unlocked={isUnlocked(c2)} completed={areAllCompleted(c3)} colorClass="border-amber-200 dark:border-amber-900">
+            <MissionItem 
+                id="mr-c3-1" 
+                title="Unificación de Marcas" 
+                desc="Todos los jugadores obtienen las recompensas base. Los extras dependen de la personalidad del Personaje 2." 
+                rewards={
+                    <ul className="list-disc space-y-1">
+                        <li><strong>Base:</strong> Arena NXT Mutiny, Títulos Pareja NXT Unity, Movimiento Doble "Whirlwind Splash"</li>
+                        <li><strong>Bold & Brash:</strong> Entrada "Kidnapped Manager"</li>
+                        <li><strong>Comedic & Fun:</strong> Unify Tag Titles (Cosmético)</li>
+                    </ul>
+                }
+            />
+        </ChapterBlock>
 
-          {/* Chapter 7 */}
-          <ChapterBlock title="ATACAR" number={7} unlocked={isCh7Unlocked} completed={isCh7Done}>
-             <MissionItem 
-                id="c7-m1"
-                title="Alianza en Marcha" 
-                desc="Cualquier personalidad."
-                rewards={<span className="italic opacity-70">Sin recompensas extra</span>}
-             />
-          </ChapterBlock>
+        <ChapterBlock title="INVESTIGATE" number={4} unlocked={isUnlocked(c3)} completed={areAllCompleted(c4)} colorClass="border-blue-200 dark:border-blue-900">
+            <div className="px-4 pb-2 text-xs font-bold text-slate-500 uppercase">Rutas Específicas por Género</div>
+            
+            <MissionItem 
+                id="mr-c4-m-1" 
+                title="Ruta Masculina" 
+                tags={<Tag text="Hombre" color="blue" />}
+                desc="Recompensas basadas en la personalidad de tu luchador masculino." 
+                rewards={
+                    <ul className="list-disc space-y-1">
+                        <li><strong>Bold:</strong> NXT Mutiny Championship (+ versión destruida)</li>
+                        <li><strong>Comedic:</strong> Pack de Armas de Payaso (6 armas nuevas)</li>
+                        <li><strong>Calculated:</strong> Arena WCW nWo Souled Out 1997, Camiseta nWo (Mujer)</li>
+                    </ul>
+                }
+            />
+            <MissionItem 
+                id="mr-c4-f-1" 
+                title="Ruta Femenina" 
+                tags={<Tag text="Mujer" color="pink" />}
+                desc="Recompensas basadas en la personalidad de tu luchadora femenina." 
+                rewards={
+                    <ul className="list-disc space-y-1">
+                        <li><strong>Bold:</strong> Personaje "Chosen", Arena Estatal, Japan Hall, Entrada Monster Truck</li>
+                        <li><strong>Comedic:</strong> Pack de Bruja (3 prendas + chaqueta)</li>
+                        <li><strong>Calculated:</strong> Máscaras Mutiny (Hombre y Mujer)</li>
+                    </ul>
+                }
+            />
+        </ChapterBlock>
 
-          {/* Chapter 8 */}
-          <ChapterBlock title="SOBREVIVIR" number={8} unlocked={isCh8Unlocked} completed={isCh8Done}>
-             <MissionItem 
-                id="c8-m1"
-                title="Supervivencia del Más Apto" 
-                desc="Completa Survivor Series."
-                rewards={<ul className="list-disc"><li>Arena Survivor Series MyRISE</li></ul>}
-             />
-          </ChapterBlock>
+        <ChapterBlock title="DEFEND" number={5} unlocked={isUnlocked(c4)} completed={areAllCompleted(c5)} colorClass="border-emerald-200 dark:border-emerald-900">
+            <MissionItem 
+                id="mr-c5-1" 
+                title="Defensa del Territorio" 
+                desc="Completa el capítulo para obtener recompensas universales." 
+                rewards={<ul className="list-disc space-y-1"><li>Arena NXT No Mercy Mutiny</li><li>Atuendo CM Punk Mutiny Alt.</li></ul>}
+            />
+        </ChapterBlock>
 
-          {/* Chapter 9 */}
-          <ChapterBlock title="FINAL (DECISIÓN)" number={9} unlocked={isCh9Unlocked} completed={isReclaimPathActive || isConquerPathActive}>
-            <div className="p-4 bg-slate-900 text-white text-center">
-               <Split className="mx-auto mb-2 text-blue-400" />
-               <h3 className="font-bold text-lg uppercase mb-2">Elige tu Destino</h3>
-               <p className="text-xs text-slate-400 mb-4">Esta decisión bloqueará permanentemente el otro camino en esta partida.</p>
+        <ChapterBlock title="RALLY" number={6} unlocked={isUnlocked(c5)} completed={areAllCompleted(c6)} colorClass="border-indigo-200 dark:border-indigo-900">
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 mx-4 mb-2 rounded border border-indigo-100 dark:border-indigo-800 text-xs text-indigo-800 dark:text-indigo-300">
+               <strong className="block mb-1">Elección de Aliados:</strong>
+               Debes elegir 1 Hombre y 1 Mujer para ayudarte. Solo obtendrás las recompensas de los que elijas.
             </div>
 
-            {/* Reclaim Path */}
-            <div className={`border-b-4 border-blue-500 ${isConquerPathActive ? 'opacity-30 pointer-events-none grayscale' : ''}`}>
-               <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 font-black text-center uppercase tracking-widest text-xs">
-                 Camino: Recuperar (1er Personaje)
+            <MissionItem 
+                id="mr-c6-1" 
+                title="Reclutamiento" 
+                desc="Lista de recompensas por aliado elegido." 
+                rewards={
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div>
+                            <strong className="text-slate-900 dark:text-white block mb-1 border-b border-slate-200 dark:border-slate-700">Aliados Hombres</strong>
+                            <ul className="list-disc space-y-1 pl-1">
+                                <li><span className="font-semibold">Seth Rollins:</span> Ropa The Shield, Pack Casual</li>
+                                <li><span className="font-semibold">Cody Rhodes (2da Partida):</span> "Undashing" Cody, Stardust, Cena '12, Orton '15, Arenas RAW '11 & WM31, R-Truth '11 Alt.</li>
+                                <li className="text-slate-400">Drew McIntyre / Jey Uso: Sin recompensas</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong className="text-slate-900 dark:text-white block mb-1 border-b border-slate-200 dark:border-slate-700">Aliadas Mujeres</strong>
+                            <ul className="list-disc space-y-1 pl-1">
+                                <li><span className="font-semibold">Becky Lynch:</span> Asuka Alt, Bayley '15 Pack, Entrada Irish Dance, Pack Casual</li>
+                                <li><span className="font-semibold">Charlotte Flair:</span> Flair '14/'17/'19 Packs, Natalya '14</li>
+                                <li><span className="font-semibold">Rhea Ripley (2da Partida):</span> Rhea '17 y Rhea '20</li>
+                                <li><span className="font-semibold">Jade Cargill:</span> Pack Casual</li>
+                            </ul>
+                        </div>
+                    </div>
+                }
+            />
+        </ChapterBlock>
+
+        <ChapterBlock title="ATTACK" number={7} unlocked={isUnlocked(c6)} completed={areAllCompleted(c7)} colorClass="border-slate-200 dark:border-slate-700">
+            <MissionItem 
+                id="mr-c7-1" 
+                title="La Ofensiva" 
+                desc="Un capítulo centrado en la historia sin desbloqueables significativos." 
+                rewards="Progreso de Historia"
+            />
+        </ChapterBlock>
+
+        <ChapterBlock title="SURVIVE" number={8} unlocked={isUnlocked(c7)} completed={areAllCompleted(c8)} colorClass="border-yellow-200 dark:border-yellow-900">
+            <MissionItem 
+                id="mr-c8-1" 
+                title="Survivor Series" 
+                desc="El evento principal antes de la bifurcación final." 
+                rewards="Arena Survivor Series MyRISE"
+            />
+            <div className="px-4 pt-2">
+               <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-white mb-2">
+                  <Split size={16} /> EL FINAL: Elige tu Camino
                </div>
-               <div className="p-2 text-xs text-center text-slate-500 bg-gray-50 dark:bg-slate-800">Elige un aliado (Bloquea otros)</div>
-               <MissionItem id="c9r-a" group={ch9ReclaimAllyGroup} title="A: Leyendas" desc="Scott Steiner, Alundra Blayze..." rewards="Personajes Leyenda, Arena Convention" lockedByPath={isConquerPathActive} />
-               <MissionItem id="c9r-b" group={ch9ReclaimAllyGroup} title="B: Indies" desc="Josie Jane, Paragon Jay Pierce" rewards="Personajes Indie, Arena TBD" lockedByPath={isConquerPathActive} />
-               <MissionItem id="c9r-c" group={ch9ReclaimAllyGroup} title="C: Pasado 2K" desc="Buzz, Red, Tre..." rewards="MyPlayers Anteriores, Estudio MoCap" lockedByPath={isConquerPathActive} />
-               
-               {isReclaimPathActive && (
-                  <MissionItem id="c9r-final" title="WrestleMania Revenge" desc="Misión Final de Recuperar" rewards="Arena WM MyRISE 2K25" />
-               )}
-            </div>
-
-            {/* Conquer Path */}
-            <div className={`border-t-4 border-red-500 ${isReclaimPathActive ? 'opacity-30 pointer-events-none grayscale' : ''}`}>
-               <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 font-black text-center uppercase tracking-widest text-xs">
-                 Camino: Conquistar (2do Personaje)
+               <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-700 text-center">
+                     <div className="text-xs text-slate-500 uppercase font-bold">Continuar con Personaje 1</div>
+                     <div className="font-black text-blue-600 dark:text-blue-400">RECLAIM</div>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-700 text-center">
+                     <div className="text-xs text-slate-500 uppercase font-bold">Continuar con Personaje 2</div>
+                     <div className="font-black text-red-600 dark:text-red-400">CONQUER</div>
+                  </div>
                </div>
-               <MissionItem id="c9c-m1" group={ch9ConquerTasks} title="Bienvenido al Motín" desc="Continuar con 2do personaje" rewards="Arenas Mutiny" lockedByPath={isReclaimPathActive} />
-               <MissionItem id="c9c-m2" group={ch9ConquerTasks} title="MutinyMania" desc="Misión Final de Conquistar" rewards="Arena MutinyMania, Ropa KO/Bayley" lockedByPath={isReclaimPathActive} />
             </div>
+        </ChapterBlock>
 
-          </ChapterBlock>
+        {/* Chapter 9: FINAL */}
+        <ChapterBlock title="THE FINAL" number={9} unlocked={isUnlocked(c8)} completed={areAllCompleted(c9)} colorClass="border-purple-200 dark:border-purple-900">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 pt-0">
+                {/* RECLAIM PATH */}
+                <div className={`rounded-xl p-4 border ${completed['mr-c9-reclaim'] ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}>
+                    <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-black text-blue-800 dark:text-blue-300">RUTA: RECLAIM (P1)</h3>
+                        <button onClick={() => toggleTask('mr-c9-reclaim')} className={completed['mr-c9-reclaim'] ? 'text-blue-600' : 'text-slate-300 hover:text-blue-500'}>
+                            {completed['mr-c9-reclaim'] ? <CheckCircle2 size={20} /> : <Circle size={20} />}
+                        </button>
+                    </div>
+                    <div className="space-y-2 text-xs">
+                        <div className="p-2 bg-white/50 dark:bg-black/20 rounded">
+                            <strong className="block text-slate-500 uppercase text-[10px]">Opción: Leyendas</strong>
+                            Scott Steiner '03, Alundra Blayze, DDP, Arena Wrestling Convention
+                        </div>
+                        <div className="p-2 bg-white/50 dark:bg-black/20 rounded">
+                            <strong className="block text-slate-500 uppercase text-[10px]">Opción: Indies</strong>
+                            Arena TBD, Josie Jane, Paragon Jay Pierce
+                        </div>
+                        <div className="p-2 bg-white/50 dark:bg-black/20 rounded">
+                            <strong className="block text-slate-500 uppercase text-[10px]">Opción: MyPlayers</strong>
+                            Motion Capture Studio, Buzz (2K19), Red & Tre (2K20), LJ (2K23), Captain (2K24)
+                        </div>
+                        <div className="mt-1 font-bold text-blue-600 dark:text-blue-400">+ Arena WM MyRISE 2K25</div>
+                    </div>
+                </div>
 
-        </div>
+                {/* CONQUER PATH */}
+                <div className={`rounded-xl p-4 border ${completed['mr-c9-conquer'] ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}>
+                    <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-black text-red-800 dark:text-red-300">RUTA: CONQUER (P2)</h3>
+                        <button onClick={() => toggleTask('mr-c9-conquer')} className={completed['mr-c9-conquer'] ? 'text-red-600' : 'text-slate-300 hover:text-red-500'}>
+                            {completed['mr-c9-conquer'] ? <CheckCircle2 size={20} /> : <Circle size={20} />}
+                        </button>
+                    </div>
+                    <div className="space-y-2 text-xs">
+                        <div className="p-2 bg-white/50 dark:bg-black/20 rounded">
+                            <strong className="block text-slate-500 uppercase text-[10px]">Opción: Welcome to Mutiny</strong>
+                            Arena RAW Mutiny, Arena SmackDown Mutiny
+                        </div>
+                        <div className="p-2 bg-white/50 dark:bg-black/20 rounded">
+                            <strong className="block text-slate-500 uppercase text-[10px]">Opción: MutinyMania</strong>
+                            Arena MutinyMania, Entrada "Throne Smash", Kevin Owens Mutiny, Bayley Mutiny
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ChapterBlock>
+
       </div>
     </div>
   );

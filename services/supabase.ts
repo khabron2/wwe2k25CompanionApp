@@ -2,31 +2,20 @@ import { createClient } from '@supabase/supabase-js';
 
 // Configuration from user prompt
 const SUPABASE_URL = 'https://lgxbyhwzmciqoqnvfapr.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxneGJ5aHd6bWNpcW9xbnZmYXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMTgwMTgsImV4cCI6MjA3OTc5NDAxOH0.ZLFdy12ZCRN1kopi0qp786yRTFZExexKxv4Fiz71CQU';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxneGJ5aHd6bWNpcW9xbnZmYXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMTgwMTgsImV4cCI6MjA3OTc5NDAxOH0.ZLFdy12ZCRN1kopi0qp786yRTFZExexKxv4Fiz71CQU, service_role';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Clean key if needed (remove service role suffix if present in prompt copy/paste)
+const CLEAN_KEY = SUPABASE_ANON_KEY.split(',')[0].trim();
+
+export const supabase = createClient(SUPABASE_URL, CLEAN_KEY);
 
 /**
- * SQL SCHEMA REQUIRED IN SUPABASE:
+ * IMPORTANTE: CONFIGURACIÓN DE BASE DE DATOS
  * 
- * 1. user_progress table:
- * create table user_progress (
- *   user_id uuid references auth.users not null,
- *   category text not null,
- *   data jsonb not null,
- *   updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
- *   primary key (user_id, category)
- * );
+ * Para que el guardado funcione, debes ejecutar el contenido del archivo 
+ * 'SUPABASE_SETUP.sql' en el Editor SQL de tu panel de Supabase.
  * 
- * 2. custom_wrestlers table:
- * create table custom_wrestlers (
- *   id text not null,
- *   user_id uuid references auth.users not null,
- *   wrestler_data jsonb not null,
- *   primary key (id)
- * );
- * 
- * 3. Enable RLS (Row Level Security) on both tables and add policies so users can only select/insert/update their own data.
+ * Esto creará las tablas 'user_progress' y 'custom_wrestlers' necesarias.
  */
 
 // --- DATA PERSISTENCE HELPERS ---
@@ -48,7 +37,9 @@ export const saveProgress = async (category: string, data: any) => {
           updated_at: new Date()
         });
       
-      if (error) console.error(`Error saving ${category} to Supabase:`, JSON.stringify(error, null, 2));
+      if (error) {
+        console.error(`Error saving ${category} to Supabase. Make sure tables exist (see SUPABASE_SETUP.sql):`, JSON.stringify(error, null, 2));
+      }
     } catch (e) {
       console.error('Supabase exception:', e);
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Briefcase, TrendingUp, Users } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Briefcase, TrendingUp, Users, Settings, Target, Zap, DollarSign, Star, Flag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { loadProgress, saveProgress } from '../services/supabase';
 
@@ -51,6 +51,7 @@ interface TaskItemProps {
   title: string;
   desc: string;
   rewards?: React.ReactNode;
+  icon?: React.ReactNode;
 }
 
 const MyGMGuide: React.FC = () => {
@@ -78,18 +79,18 @@ const MyGMGuide: React.FC = () => {
   const p1Tasks = ['gm-p1-1', 'gm-p1-2', 'gm-p1-3'];
   const isP1Done = areAllCompleted(p1Tasks);
 
-  // Phase 2: Season 1
+  // Phase 2: Draft
   const p2Tasks = ['gm-p2-1', 'gm-p2-2', 'gm-p2-3'];
   const isP2Done = areAllCompleted(p2Tasks);
   const isP2Unlocked = isP1Done;
 
-  // Phase 3: Expansion
-  const p3Tasks = ['gm-p3-1', 'gm-p3-2'];
+  // Phase 3: Booking
+  const p3Tasks = ['gm-p3-1', 'gm-p3-2', 'gm-p3-3'];
   const isP3Done = areAllCompleted(p3Tasks);
   const isP3Unlocked = isP2Done;
 
-  // Phase 4: Hall of Fame
-  const p4Tasks = ['gm-p4-hof'];
+  // Phase 4: Management & HOF
+  const p4Tasks = ['gm-p4-1', 'gm-p4-2'];
   const isP4Done = areAllCompleted(p4Tasks);
   const isP4Unlocked = isP3Done;
 
@@ -99,6 +100,7 @@ const MyGMGuide: React.FC = () => {
     title, 
     desc, 
     rewards, 
+    icon
   }) => {
     const isChecked = completed[id];
 
@@ -112,8 +114,8 @@ const MyGMGuide: React.FC = () => {
             {isChecked ? <CheckCircle2 size={24} fill="currentColor" className="text-white dark:text-slate-900" /> : <Circle size={24} />}
           </button>
           <div className="flex-1">
-            <h3 className={`font-bold text-lg mb-1 ${isChecked ? 'text-slate-500 line-through decoration-2 decoration-emerald-500/50' : 'text-slate-900 dark:text-white'}`}>
-              {title}
+            <h3 className={`font-bold text-lg mb-1 flex items-center gap-2 ${isChecked ? 'text-slate-500 line-through decoration-2 decoration-emerald-500/50' : 'text-slate-900 dark:text-white'}`}>
+              {icon} {title}
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-3 leading-relaxed">
               {desc}
@@ -122,7 +124,7 @@ const MyGMGuide: React.FC = () => {
             {rewards && (
               <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-400 uppercase mb-2">
-                  <Trophy size={14} /> Logro de Carrera
+                  <Zap size={14} className="text-yellow-500" /> Datos Clave
                 </div>
                 <div className="text-xs text-slate-700 dark:text-slate-300 pl-4">
                   {rewards}
@@ -153,7 +155,7 @@ const MyGMGuide: React.FC = () => {
              <span className="text-emerald-400 font-bold uppercase tracking-widest text-xs">Modo Manager</span>
           </div>
           <h1 className="text-4xl font-black italic tracking-tighter mb-2">MyGM</h1>
-          <p className="text-slate-300 font-medium max-w-md">Toma el control de la marca. Gestiona presupuestos, contrata superestrellas y derrota a los GMs rivales en la guerra de ratings.</p>
+          <p className="text-slate-300 font-medium max-w-md">Guía completa: Draft, Presupuesto, Booking y el camino al Hall of Fame.</p>
         </div>
       </div>
 
@@ -166,9 +168,10 @@ const MyGMGuide: React.FC = () => {
                  <TrendingUp size={24} />
               </div>
               <div>
-                 <h3 className="font-bold text-slate-800 dark:text-white mb-1">Estrategia de Negocios</h3>
+                 <h3 className="font-bold text-slate-800 dark:text-white mb-1">Tu Objetivo</h3>
                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Para ganar, debes equilibrar el presupuesto, la moral de los luchadores y la calidad de los combates. Combina estilos opuestos (Gigante vs Volador) para obtener mejores puntuaciones.
+                    Gestiona contratos, organiza shows y gana la batalla de marcas hasta WrestleMania. 
+                    Juega local o online (hasta 4 jugadores). Los Custom GMs y combates jugables solo están disponibles offline.
                  </p>
               </div>
            </div>
@@ -177,67 +180,139 @@ const MyGMGuide: React.FC = () => {
         <div className="space-y-6 pb-12">
           
           {/* Phase 1 */}
-          <PhaseBlock title="EL DRAFT Y SETUP" number={1} unlocked={true} completed={isP1Done}>
+          <PhaseBlock title="CONFIGURACIÓN" number={1} unlocked={true} completed={isP1Done}>
              <TaskItem 
                 id="gm-p1-1" 
-                title="Selección de Mando" 
-                desc="Elige a tu GM y Marca. Recomendado: Teddy Long (SmackDown) para bonificaciones pasivas."
-                rewards="Bono de Moral Inicial"
+                title="Elegir Gerente General"
+                icon={<Users size={18} className="text-blue-500" />}
+                desc="Cada GM tiene una 'Power Card' exclusiva. Elige sabiamente según tu estrategia."
+                rewards={
+                    <ul className="list-disc space-y-1">
+                        <li><strong>Leyendas:</strong> Shawn Michaels, CM Punk, Miss Elizabeth, Mick Foley, Eric Bischoff.</li>
+                        <li><strong>Actuales:</strong> Adam Pearce, Sonya Deville, William Regal, Paul Heyman, Tyler Breeze, Xavier Woods.</li>
+                        <li><strong>Custom GM:</strong> Crea tu propio personaje con bonificaciones a medida.</li>
+                    </ul>
+                }
              />
              <TaskItem 
                 id="gm-p1-2" 
-                title="Draft Inteligente" 
-                desc="Contrata al menos 2 Gigantes y 2 Voladores. Mantén $500k de presupuesto inicial."
+                title="Selección de Marca" 
+                icon={<Target size={18} className="text-red-500" />}
+                desc="La marca define tu ventaja competitiva semanal. 'NXT Mutiny' es la nueva adición exclusiva."
+                rewards={
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[10px] md:text-xs">
+                        <div><strong className="text-red-500">RAW:</strong> Impide que el rival use 3 superestrellas la próxima semana.</div>
+                        <div><strong className="text-blue-500">SmackDown:</strong> Aumenta popularidad de 6 superestrellas (+6).</div>
+                        <div><strong className="text-yellow-500">NXT:</strong> Boost significativo en calificación de matches titulares.</div>
+                        <div><strong className="text-purple-500">WCW:</strong> Extiende contratos de leyendas 3 semanas.</div>
+                        <div><strong className="text-emerald-500">ECW:</strong> Bloquea 3 campeones del rival.</div>
+                        <div className="col-span-1 md:col-span-2 bg-emerald-50 dark:bg-emerald-900/30 p-1 rounded border border-emerald-200"><strong className="text-emerald-600 dark:text-emerald-400">NXT Mutiny (Nuevo):</strong> Cobras el valor total ($) por despedir a 3 superestrellas.</div>
+                    </div>
+                }
              />
              <TaskItem 
                 id="gm-p1-3" 
-                title="Contratos Iniciales" 
-                desc="Firma Agentes Libres por 5 semanas para ahorrar costos a corto plazo."
+                title="Ajustes de Partida" 
+                icon={<Settings size={18} className="text-slate-500" />}
+                desc="Dificultad IA (Fácil a Extremo), Presupuesto ($2.75M - $4M) y Shake Ups."
+                rewards="Recomendado: Presupuesto alto para principiantes. Activa Shake Ups para eventos aleatorios."
              />
           </PhaseBlock>
 
           {/* Phase 2 */}
-          <PhaseBlock title="TEMPORADA 1" number={2} unlocked={isP2Unlocked} completed={isP2Done}>
+          <PhaseBlock title="DRAFT Y ROSTER" number={2} unlocked={isP2Unlocked} completed={isP2Done}>
              <TaskItem 
                 id="gm-p2-1" 
-                title="Rivalidades Nivel 4" 
-                desc="Desarrolla una rivalidad hasta nivel 4 para el primer PLE."
-                rewards="Bonificación de Match Rating"
+                title="Estrategia del Draft" 
+                icon={<Users size={18} className="text-purple-500" />}
+                desc="Mínimo 9 rondas. Guarda presupuesto (mínimo $500k) para la temporada. Revisa la Stamina y Popularidad."
              />
              <TaskItem 
                 id="gm-p2-2" 
-                title="Cartas de Poder" 
-                desc="Usa 'Spa de Salud' para recuperar resistencia de tus estrellas principales."
+                title="Clases y Matchmaking" 
+                icon={<TrendingUp size={18} className="text-green-500" />}
+                desc="La química de combate es vital para obtener 5 estrellas. Combina clases opuestas."
+                rewards={
+                    <ul className="list-disc space-y-1">
+                        <li><strong>Gigante vs Crucero:</strong> La mejor bonificación.</li>
+                        <li><strong>Luchador (Fighter) vs Matón (Bruiser):</strong> Excelente química.</li>
+                        <li><strong>Especialista:</strong> Funciona bien con cualquier clase.</li>
+                    </ul>
+                }
              />
              <TaskItem 
                 id="gm-p2-3" 
-                title="Guerra de Ratings" 
-                desc="Termina la temporada en la posición #1 del ranking."
-                rewards="Trofeo: Top of the Mountain"
+                title="Roles (Face vs Heel)" 
+                icon={<Star size={18} className="text-yellow-500" />}
+                desc="Siempre enfrenta a Buenos (Face) contra Malos (Heel). Face vs Face o Heel vs Heel reduce la calificación."
              />
           </PhaseBlock>
 
           {/* Phase 3 */}
-          <PhaseBlock title="EXPANSIÓN GLOBAL" number={3} unlocked={isP3Unlocked} completed={isP3Done}>
+          <PhaseBlock title="BOOKING Y LOGÍSTICA" number={3} unlocked={isP3Unlocked} completed={isP3Done}>
              <TaskItem 
                 id="gm-p3-1" 
-                title="Draft de Leyendas" 
-                desc="Contrata una Leyenda post-WrestleMania para aumentar la popularidad de la marca."
+                title="Organización del Show" 
+                icon={<Briefcase size={18} className="text-blue-500" />}
+                desc="Curva Dramática: Opener fuerte, mitad floja, Main Event espectacular. Usa Auto-book para combates, pero reserva las promos manualmente."
              />
              <TaskItem 
                 id="gm-p3-2" 
-                title="Mejoras de Logística" 
-                desc="Mejora el Estadio al Nivel 3 para maximizar ingresos."
+                title="Tipos de Promos" 
+                desc="Esenciales para gestionar moral y rivalidades."
+                rewards={
+                    <ul className="list-disc space-y-1">
+                        <li><strong>Call-Out:</strong> Inicia rivalidad nivel 1.</li>
+                        <li><strong>Self-Promo:</strong> Sube popularidad propia.</li>
+                        <li><strong>Charity:</strong> Sube moral (y popularidad Face).</li>
+                        <li><strong>Advertising:</strong> Genera dinero extra ($).</li>
+                        <li><strong>Role/Class Change:</strong> Cambia a Face/Heel o estilo de lucha.</li>
+                    </ul>
+                }
+             />
+             <TaskItem 
+                id="gm-p3-3" 
+                title="Arenas y Logística" 
+                icon={<DollarSign size={18} className="text-emerald-500" />}
+                desc="Invierte en mejores arenas para aumentar ingresos por entrada, pero cuidado con el costo semanal."
+                rewards={
+                    <ul className="list-disc space-y-1">
+                        <li><strong>Gimnasio Escolar:</strong> Costo $0 (Cap: 2,000)</li>
+                        <li><strong>Sala de Eventos:</strong> Costo bajo (Cap: 5,000)</li>
+                        <li><strong>Estadio Grande:</strong> Costo $30,000 (Cap: 30,000)</li>
+                        <li><strong>Colosseum:</strong> Costo $50,000 (Cap: 50,000)</li>
+                    </ul>
+                }
              />
           </PhaseBlock>
 
            {/* Phase 4 */}
-           <PhaseBlock title="SALÓN DE LA FAMA" number={4} unlocked={isP4Unlocked} completed={isP4Done}>
+           <PhaseBlock title="GESTIÓN Y HALL OF FAME" number={4} unlocked={isP4Unlocked} completed={isP4Done}>
              <TaskItem 
-                id="gm-p4-hof" 
-                title="Carrera Legendaria" 
-                desc="Completa los 10 objetivos de carrera para entrar al Hall of Fame."
-                rewards={<ul className="list-disc space-y-1"><li>Logro: GM Inmortal</li><li>Desbloqueo: Custom GM Slot</li></ul>}
+                id="gm-p4-1" 
+                title="Gestión Avanzada" 
+                icon={<Flag size={18} className="text-red-500" />}
+                desc="Controla la Moral, Stamina (evita lesiones con 'Spa de Salud') y usa Power Cards para sabotear rivales."
+                rewards={
+                   <div className="space-y-1 text-[10px]">
+                      <div><strong>PLE (PPV):</strong> Cada 5 semanas. Combates Cross-Brand otorgan cartas raras.</div>
+                      <div><strong>Shake Ups:</strong> Eventos aleatorios que cambian reglas temporalmente.</div>
+                   </div>
+                }
+             />
+             <TaskItem 
+                id="gm-p4-2" 
+                title="Camino al Hall of Fame" 
+                icon={<Trophy size={18} className="text-yellow-500" />}
+                desc="Para ganar el juego y entrar al HOF, debes cumplir hitos de carrera acumulativos."
+                rewards={
+                    <ul className="list-disc space-y-1">
+                        <li><strong className="text-emerald-600">Dinero:</strong> Generar $100 Millones.</li>
+                        <li><strong className="text-blue-600">Fans:</strong> Alcanzar 10 Millones de fans.</li>
+                        <li><strong className="text-purple-600">Ranking:</strong> Terminar temporada en puesto #1.</li>
+                        <li>Desbloqueo: <strong>Logro de Carrera</strong> y Slot de GM Personalizado.</li>
+                    </ul>
+                }
              />
           </PhaseBlock>
 

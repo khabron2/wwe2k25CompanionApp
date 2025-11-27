@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Skull, Map, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Skull, Map, ShieldAlert, BookOpen, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { loadProgress, saveProgress } from '../services/supabase';
 
-interface ZoneBlockProps {
+interface ChapterBlockProps {
   title: string;
-  level: number;
+  chapter: number;
   unlocked: boolean;
   completed: boolean;
   children?: React.ReactNode;
 }
 
-const ZoneBlock: React.FC<ZoneBlockProps> = ({ 
+const ChapterBlock: React.FC<ChapterBlockProps> = ({ 
   title, 
-  level,
+  chapter,
   unlocked, 
   completed: isDone,
   children 
@@ -22,21 +22,21 @@ const ZoneBlock: React.FC<ZoneBlockProps> = ({
     {!unlocked && (
       <div className="absolute inset-0 z-20 bg-gray-200/50 dark:bg-black/50 backdrop-blur-[1px] flex items-center justify-center">
          <div className="bg-slate-900 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg font-bold text-sm">
-           <Lock size={16} /> Zona Bloqueada
+           <Lock size={16} /> Capítulo Bloqueado
          </div>
       </div>
     )}
     <div className="p-4 border-b border-amber-100 dark:border-amber-900/30 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 flex justify-between items-center">
       <h2 className="font-black text-lg text-slate-800 dark:text-white uppercase tracking-wide flex items-center gap-2">
-        Nivel {level}: <span className="text-amber-600 dark:text-amber-500">{title}</span>
+        Capítulo {chapter}: <span className="text-amber-600 dark:text-amber-500">{title}</span>
       </h2>
       {isDone ? (
          <span className="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded dark:bg-green-900/30 dark:text-green-400 flex items-center gap-1">
-           <CheckCircle2 size={12} /> Conquistado
+           <CheckCircle2 size={12} /> Completado
          </span>
       ) : unlocked ? (
          <span className="text-xs font-bold px-2 py-1 bg-amber-100 text-amber-700 rounded dark:bg-amber-900/30 dark:text-amber-400">
-           Explorando
+           En Progreso
          </span>
       ) : null}
     </div>
@@ -46,7 +46,7 @@ const ZoneBlock: React.FC<ZoneBlockProps> = ({
   </div>
 );
 
-interface MatchItemProps {
+interface QuestItemProps {
   id: string;
   title: string;
   desc: string;
@@ -72,29 +72,34 @@ const TheIslandGuide: React.FC = () => {
 
   const areAllCompleted = (ids: string[]) => ids.every(id => completed[id]);
 
-  // --- PROGRESS LOGIC (Simulated Structure) ---
+  // --- PROGRESS LOGIC ---
   
-  // Zone 1: The Beach
-  const z1Tasks = ['i-z1-1', 'i-z1-2', 'i-z1-3'];
-  const isZ1Done = areAllCompleted(z1Tasks);
+  // Chapter 1
+  const c1Tasks = ['isl-c1-1', 'isl-c1-2', 'isl-c1-3', 'isl-c1-4', 'isl-c1-5', 'isl-c1-6', 'isl-c1-7', 'isl-c1-8', 'isl-c1-9', 'isl-c1-10', 'isl-c1-11', 'isl-c1-12'];
+  const isC1Done = areAllCompleted(c1Tasks);
 
-  // Zone 2: The Jungle
-  const z2Tasks = ['i-z2-1', 'i-z2-2', 'i-z2-3'];
-  const isZ2Done = areAllCompleted(z2Tasks);
-  const isZ2Unlocked = isZ1Done;
+  // Chapter 2
+  const c2Tasks = ['isl-c2-1', 'isl-c2-2', 'isl-c2-3', 'isl-c2-4', 'isl-c2-5', 'isl-c2-6'];
+  const isC2Done = areAllCompleted(c2Tasks);
+  const isC2Unlocked = isC1Done;
 
-  // Zone 3: The Volcano
-  const z3Tasks = ['i-z3-1', 'i-z3-2', 'i-z3-3'];
-  const isZ3Done = areAllCompleted(z3Tasks);
-  const isZ3Unlocked = isZ2Done;
+  // Chapter 3
+  const c3Tasks = ['isl-c3-1', 'isl-c3-2', 'isl-c3-3', 'isl-c3-4', 'isl-c3-5', 'isl-c3-6'];
+  const isC3Done = areAllCompleted(c3Tasks);
+  const isC3Unlocked = isC2Done;
 
-  // Zone 4: The Throne
-  const z4Tasks = ['i-z4-boss'];
-  const isZ4Done = areAllCompleted(z4Tasks);
-  const isZ4Unlocked = isZ3Done;
+  // Chapter 4
+  const c4Tasks = ['isl-c4-1', 'isl-c4-2', 'isl-c4-3', 'isl-c4-4', 'isl-c4-5', 'isl-c4-6'];
+  const isC4Done = areAllCompleted(c4Tasks);
+  const isC4Unlocked = isC3Done;
+
+  // Chapter 5
+  const c5Tasks = ['isl-c5-1', 'isl-c5-2', 'isl-c5-3', 'isl-c5-4'];
+  const isC5Done = areAllCompleted(c5Tasks);
+  const isC5Unlocked = isC4Done;
 
 
-  const MatchItem: React.FC<MatchItemProps> = ({ 
+  const QuestItem: React.FC<QuestItemProps> = ({ 
     id, 
     title, 
     desc, 
@@ -112,19 +117,19 @@ const TheIslandGuide: React.FC = () => {
             {isChecked ? <CheckCircle2 size={24} fill="currentColor" className="text-white dark:text-slate-900" /> : <Circle size={24} />}
           </button>
           <div className="flex-1">
-            <h3 className={`font-bold text-lg mb-1 ${isChecked ? 'text-slate-500 line-through decoration-2 decoration-amber-500/50' : 'text-slate-900 dark:text-white'}`}>
+            <h3 className={`font-bold text-sm md:text-base mb-1 ${isChecked ? 'text-slate-500 line-through decoration-2 decoration-amber-500/50' : 'text-slate-900 dark:text-white'}`}>
               {title}
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-3 leading-relaxed">
+            <p className="text-xs md:text-sm text-slate-600 dark:text-slate-300 mb-2 leading-relaxed">
               {desc}
             </p>
             
             {rewards && (
-              <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-400 uppercase mb-2">
-                  <Trophy size={14} /> Botín de Guerra
+              <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700 inline-block">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-400 uppercase mb-1">
+                  <Star size={10} className="text-yellow-500" fill="currentColor" /> Recompensas
                 </div>
-                <div className="text-xs text-slate-700 dark:text-slate-300 pl-4">
+                <div className="text-[10px] md:text-xs text-slate-700 dark:text-slate-300 font-medium">
                   {rewards}
                 </div>
               </div>
@@ -153,7 +158,7 @@ const TheIslandGuide: React.FC = () => {
              <span className="text-amber-500 font-bold uppercase tracking-widest text-xs">Nuevo Modo</span>
           </div>
           <h1 className="text-4xl font-black italic tracking-tighter mb-2 text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400">THE ISLAND</h1>
-          <p className="text-slate-300 font-medium max-w-md">Sobrevive a la trampa turística más peligrosa del mundo. Enfréntate a la familia y conquista la isla.</p>
+          <p className="text-slate-300 font-medium max-w-md">Guía completa de misiones PvE. Historia de Roman Reigns, secretos y desbloqueables.</p>
         </div>
       </div>
 
@@ -162,13 +167,13 @@ const TheIslandGuide: React.FC = () => {
         {/* Intro Card */}
         <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-lg border border-slate-100 dark:border-slate-800 mb-6">
            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-full bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400">
-                 <ShieldAlert size={24} />
+              <div className="p-3 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400">
+                 <BookOpen size={24} />
               </div>
               <div>
-                 <h3 className="font-bold text-slate-800 dark:text-white mb-1">Reglas de la Isla</h3>
+                 <h3 className="font-bold text-slate-800 dark:text-white mb-1">Misiones Principales</h3>
                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Derrota a tus oponentes en combates consecutivos. La salud no se regenera completamente entre rondas. Desbloquea recompensas exclusivas al completar cada zona.
+                    Sigue esta lista para desbloquear todos los personajes, armas y arenas. Completar los 5 capítulos al 100% otorga la recompensa final definitiva.
                  </p>
               </div>
            </div>
@@ -176,81 +181,79 @@ const TheIslandGuide: React.FC = () => {
 
         <div className="space-y-6 pb-12">
           
-          {/* Zone 1 */}
-          <ZoneBlock title="LA PLAYA (THE BEACH)" level={1} unlocked={true} completed={isZ1Done}>
-             <MatchItem 
-                id="i-z1-1" 
-                title="Combate 1: La Bienvenida" 
-                desc="Vs. Superestrella NXT Aleatoria."
-                rewards="200 VC"
-             />
-             <MatchItem 
-                id="i-z1-2" 
-                title="Combate 2: Arena movediza" 
-                desc="Vs. Otis & Akira Tozawa (Handicap)."
-                rewards="300 VC"
-             />
-             <MatchItem 
-                id="i-z1-3" 
-                title="Jefe de Zona: El Guardián" 
-                desc="Vs. Solo Sikoa '22."
-                rewards={<ul className="list-disc space-y-1"><li>Arena: The Island Beach</li><li>Atuendo: Island Tourist</li></ul>}
-             />
-          </ZoneBlock>
+          {/* Chapter 1 */}
+          <ChapterBlock title="Introducción a la Isla" chapter={1} unlocked={true} completed={isC1Done}>
+             <QuestItem id="isl-c1-1" title="R-Tutor" desc="Paul Heyman y R-Truth te enseñan las mecánicas y el uso de MyBooth." />
+             <QuestItem id="isl-c1-2" title="Welcome to My Island" desc="Combates 1v1, Battle Royal y 6-Man Tag." rewards="Roman Reigns anuncia torneo." />
+             <QuestItem id="isl-c1-3" title="A Real Life Video Game!" desc="Xavier Woods te recluta para construir una armadura." rewards="Armadura de Videojuego." />
+             <QuestItem id="isl-c1-4" title="OVRcoming the Odds" desc="Derrota secuaces blindados y enfréntate a Zero en Casket Match." />
+             <QuestItem id="isl-c1-5" title="An Authentic WWE Broken Vase" desc="Recupera el jarrón robado por Austin Theory en el cementerio." />
+             <QuestItem id="isl-c1-6" title="Interdimensional Scotch Tape" desc="Ayuda al fantasma de Paul Bearer a restaurar la Urna. Hell in a Cell vs Undertaker." />
+             <QuestItem id="isl-c1-7" title="Keys to the Kingdom" desc="Ladder Match contra Judgment Day por las llaves de Hero HQ." />
+             <QuestItem id="isl-c1-8" title="The Queen's Favor" desc="Detén a Alba Fyre e Isla Dawn para ayudar a Charlotte." />
+             <QuestItem id="isl-c1-9" title="Who is La Paradoja" desc="Usa la máscara 'La Paradoja' y viaja en el tiempo con LWO." />
+             <QuestItem id="isl-c1-10" title="What's In The Past" desc="Viaja al pasado con Jodie Garcia." />
+             <QuestItem id="isl-c1-11" title="Take Me For A Ride" desc="Busca la montaña rusa de R-Truth." />
+             <QuestItem id="isl-c1-12" title="Prove Yourself" desc="Torneo de 6-Man Tag para impresionar a Roman." />
+          </ChapterBlock>
 
-          {/* Zone 2 */}
-          <ZoneBlock title="LA JUNGLA (THE JUNGLE)" level={2} unlocked={isZ2Unlocked} completed={isZ2Done}>
-             <MatchItem 
-                id="i-z2-1" 
-                title="Combate 1: Depredadores" 
-                desc="Vs. Viking Raiders (Tag Team con compañero aleatorio)."
-                rewards="400 VC"
-             />
-             <MatchItem 
-                id="i-z2-2" 
-                title="Combate 2: La Caza" 
-                desc="Fatal 4-Way Eliminación."
-                rewards="500 VC"
-             />
-             <MatchItem 
-                id="i-z2-3" 
-                title="Jefe de Zona: La Bestia" 
-                desc="Vs. Bron Breakker."
-                rewards={<ul className="list-disc space-y-1"><li>Arena: Deep Jungle</li><li>Arma: Tribal Spear</li></ul>}
-             />
-          </ZoneBlock>
+          {/* Chapter 2 */}
+          <ChapterBlock title="Lealtades" chapter={2} unlocked={isC2Unlocked} completed={isC2Done}>
+             <QuestItem id="isl-c2-1" title="Who Do You Serve?" desc="Elige a quién servir en la isla." />
+             <QuestItem id="isl-c2-2" title="The Hammer of Hammers" desc="Misión principal de combate." rewards="Mazo de Triple H." />
+             <QuestItem id="isl-c2-3" title="Trash TV" desc="Completa Hammer of Hammers." rewards="Manager: Fantasma de Paul Bearer." />
+             <QuestItem id="isl-c2-4" title="Big Time Deal" desc="Derrota al jefe de zona." rewards="Personaje: Zero." />
+             <QuestItem id="isl-c2-5" title="Mascot Prime" desc="Misión secundaria tras Big Time Deal." rewards="Prime Bottle Mascot." />
+             <QuestItem id="isl-c2-6" title="Misiones de Exploración" desc="Ulterior Motives, Pinned By Fear, ARRR-Truth!, Test Your Limits." />
+          </ChapterBlock>
 
-          {/* Zone 3 */}
-          <ZoneBlock title="EL VOLCÁN (THE VOLCANO)" level={3} unlocked={isZ3Unlocked} completed={isZ3Done}>
-             <MatchItem 
-                id="i-z3-1" 
-                title="Combate 1: Calor Extremo" 
-                desc="Inferno Match vs Kane '03."
-                rewards="600 VC"
-             />
-             <MatchItem 
-                id="i-z3-2" 
-                title="Combate 2: Erupción" 
-                desc="Gauntlet Match (3 Oponentes)."
-                rewards="800 VC"
-             />
-             <MatchItem 
-                id="i-z3-3" 
-                title="Jefe de Zona: El Demonio" 
-                desc="Vs. Finn Bálor (Demon)."
-                rewards={<ul className="list-disc space-y-1"><li>Arena: Volcano Peak</li><li>Atuendo: Magma Skin</li></ul>}
-             />
-          </ZoneBlock>
+          {/* Chapter 3 */}
+          <ChapterBlock title="Expansión" chapter={3} unlocked={isC3Unlocked} completed={isC3Done}>
+             <QuestItem id="isl-c3-1" title="The Heyman Touch" desc="Inicio del capítulo 3." />
+             <QuestItem id="isl-c3-2" title="Fight Like A Gamer!" desc="Combate estilo arcade." rewards="Espada del Futuro." />
+             <QuestItem id="isl-c3-3" title="We're Really Glad That You're Our Friend" desc="Misión Firefly Fun House." rewards="Lilly, Nikki Cross '20, Alexa Bliss FFH." />
+             <QuestItem id="isl-c3-4" title="The Theory of Tranquility" desc="Derrota a la facción de Theory." rewards="Cody Rhod35-BOT." />
+             <QuestItem id="isl-c3-5" title="Poisoning the Well" desc="Enfréntate a los Dudleyz." rewards="Partes CAS Dudley Boyz." />
+             <QuestItem id="isl-c3-6" title="What's Left Behind" desc="Wyatt Sicks Expansion." rewards="Partes CAS Disfraz de Lilly." />
+          </ChapterBlock>
 
-           {/* Zone 4 */}
-           <ZoneBlock title="EL TRONO (THE THRONE)" level={4} unlocked={isZ4Unlocked} completed={isZ4Done}>
-             <MatchItem 
-                id="i-z4-boss" 
-                title="BATALLA FINAL: TRIBAL CHIEF" 
-                desc="Vs. Roman Reigns (Bloodline Rules). Debes ganar por sumisión o KO."
-                rewards={<ul className="list-disc space-y-1"><li>Personaje: Roman Reigns '25 (Island God)</li><li>Título: Crown of the Island</li><li>10,000 VC</li></ul>}
+          {/* Chapter 4 */}
+          <ChapterBlock title="La Verdad" chapter={4} unlocked={isC4Unlocked} completed={isC4Done}>
+             <QuestItem id="isl-c4-1" title="The Truth is Out There" desc="Investiga los secretos finales." />
+             <QuestItem id="isl-c4-2" title="Building An Empire" desc="Ayuda a construir el nuevo reino." rewards="King Corbin, Roman Reigns '19." />
+             <QuestItem id="isl-c4-3" title="Everyone Loves a Wrestling Wedding" desc="Drama nupcial en el ring." />
+             <QuestItem id="isl-c4-4" title="Hell in the High Desert" desc="Misiones de exploración avanzada." />
+             <QuestItem id="isl-c4-5" title="The WWE Superstar Tournament" desc="Gana el torneo final del capítulo." />
+             <QuestItem id="isl-c4-6" title="Historia Principal" desc="One Last Hurrah!, Brutality Born, Grit and Authority." />
+          </ChapterBlock>
+
+           {/* Chapter 5 */}
+           <ChapterBlock title="El Desafío Final" chapter={5} unlocked={isC5Unlocked} completed={isC5Done}>
+             <QuestItem 
+                id="isl-c5-1" 
+                title="The Final Confrontation" 
+                desc="Enfrentamiento épico contra todos los antagonistas." 
+                rewards="Arena Final, Nuevas Entradas."
              />
-          </ZoneBlock>
+             <QuestItem 
+                id="isl-c5-2" 
+                title="Rescue the Tribe" 
+                desc="Libera a los aliados capturados." 
+                rewards="Atuendos exclusivos para compañeros."
+             />
+             <QuestItem 
+                id="isl-c5-3" 
+                title="Secrets of The Island" 
+                desc="Explora zonas ocultas y vence a mini-jefes leyenda." 
+                rewards="Personajes exclusivos, Cosméticos raros."
+             />
+             <QuestItem 
+                id="isl-c5-4" 
+                title="ULTIMATE CHALLENGE" 
+                desc="6-Man Tag Team Match final." 
+                rewards={<ul className="list-disc ml-1"><li>Personaje Legendario</li><li>Atuendos Raros</li><li>Managers Históricos</li><li>Todas las Arenas (100%)</li></ul>}
+             />
+          </ChapterBlock>
 
         </div>
       </div>

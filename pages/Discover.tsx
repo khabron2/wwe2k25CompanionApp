@@ -12,13 +12,13 @@ const Discover: React.FC = () => {
   const [progress, setProgress] = useState<{ started: boolean; chapter: number; title: string }>({
     started: false,
     chapter: 1,
-    title: 'UNA NUEVA ERA'
+    title: 'PARTNERS'
   });
 
   // The Island State
-  const [islandProgress, setIslandProgress] = useState<{ started: boolean; level: number }>({
+  const [islandProgress, setIslandProgress] = useState<{ started: boolean; chapter: number }>({
     started: false,
-    level: 1
+    chapter: 1
   });
 
   // MyGM State
@@ -38,7 +38,7 @@ const Discover: React.FC = () => {
   });
 
   useEffect(() => {
-    // MyRISE Logic
+    // MyRISE Logic Update for 2K25 MUTINY Story
     const saved = localStorage.getItem('myrise-progress');
     if (saved) {
       const completed: Record<string, boolean> = JSON.parse(saved);
@@ -46,41 +46,40 @@ const Discover: React.FC = () => {
       const hasStarted = keys.some(k => completed[k] === true);
 
       if (hasStarted) {
-        const isAny = (ids: string[]) => ids.some(id => completed[id]);
-        const isAll = (ids: string[]) => ids.every(id => completed[id]);
+        let chapter = 1;
+        let title = 'PARTNERS';
 
-        const isCh1Done = isAll(['c1-m1', 'c1-m2']);
-        const isCh2Done = isAny(['c2-m1', 'c2-m2', 'c2-m3']);
-        const isCh3Done = isAny(['c3-m1', 'c3-m2', 'c3-m3']);
-        const isCh4Done = isAny(['c4-ma', 'c4-mb', 'c4-mc', 'c4-fa', 'c4-fb', 'c4-fc']);
-        const isCh5Done = isAll(['c5-m1']);
-        const isCh6Done = isAny(['c6-m1', 'c6-m2', 'c6-m3', 'c6-m4']) && isAny(['c6-f1', 'c6-f2', 'c6-f3', 'c6-f4']);
-        const isCh7Done = isAll(['c7-m1']);
-        const isCh8Done = isAll(['c8-m1']);
-        
-        let current = 1;
-        let title = "UNA NUEVA ERA";
+        // Check for latest chapter completed
+        if (completed['mr-c1-1']) { chapter = 2; title = 'MUTINY'; }
+        if (completed['mr-c2-1']) { chapter = 3; title = 'UNITE'; }
+        if (completed['mr-c3-1']) { chapter = 4; title = 'INVESTIGATE'; }
+        if (completed['mr-c4-m-1'] || completed['mr-c4-f-1']) { chapter = 5; title = 'DEFEND'; }
+        if (completed['mr-c5-1']) { chapter = 6; title = 'RALLY'; }
+        if (completed['mr-c6-1']) { chapter = 7; title = 'ATTACK'; }
+        if (completed['mr-c7-1']) { chapter = 8; title = 'SURVIVE'; }
+        if (completed['mr-c8-1']) { chapter = 9; title = 'FINAL'; }
 
-        if (isCh1Done) { current = 2; title = "MOTÍN"; }
-        if (isCh1Done && isCh2Done) { current = 3; title = "UNIR"; }
-        if (isCh1Done && isCh2Done && isCh3Done) { current = 4; title = "INVESTIGAR"; }
-        if (isCh1Done && isCh2Done && isCh3Done && isCh4Done) { current = 5; title = "DEFENDER"; }
-        if (isCh1Done && isCh2Done && isCh3Done && isCh4Done && isCh5Done) { current = 6; title = "REUNIR"; }
-        if (isCh1Done && isCh2Done && isCh3Done && isCh4Done && isCh5Done && isCh6Done) { current = 7; title = "ATACAR"; }
-        if (isCh1Done && isCh2Done && isCh3Done && isCh4Done && isCh5Done && isCh6Done && isCh7Done) { current = 8; title = "SOBREVIVIR"; }
-        if (isCh1Done && isCh2Done && isCh3Done && isCh4Done && isCh5Done && isCh6Done && isCh7Done && isCh8Done) { current = 9; title = "FINAL"; }
-
-        setProgress({ started: true, chapter: current, title });
+        setProgress({ started: true, chapter, title });
       }
     }
 
     // Island Logic
-    const savedIsland = localStorage.getItem('island-progress');
+    const savedIsland = localStorage.getItem('the_island-progress');
     if (savedIsland) {
       const islandCompleted: Record<string, boolean> = JSON.parse(savedIsland);
       const hasStarted = Object.keys(islandCompleted).some(k => islandCompleted[k]);
+      
       if (hasStarted) {
-        setIslandProgress({ started: true, level: 1 }); // Simplified for UI
+        let chapter = 1;
+        // Check completions for chapter advancement logic (simplified)
+        // If all C1 tasks done -> Chap 2, etc.
+        const c1Tasks = ['isl-c1-1', 'isl-c1-2', 'isl-c1-12']; // checking start/end of C1
+        if (c1Tasks.every(t => islandCompleted[t])) chapter = 2;
+        
+        const c2Tasks = ['isl-c2-1', 'isl-c2-6'];
+        if (c2Tasks.every(t => islandCompleted[t])) chapter = 3;
+
+        setIslandProgress({ started: true, chapter });
       }
     }
 
@@ -169,7 +168,7 @@ const Discover: React.FC = () => {
             </h2>
             
             <p className="text-slate-300 text-xs font-medium mb-6 max-w-xs drop-shadow-md leading-relaxed border-l-2 border-blue-500 pl-3">
-              Define tu legado. Desde el Performance Center hasta WrestleMania.
+              Únete a la Rebelión. Historia Dual "MUTINY" con cientos de desbloqueables únicos.
             </p>
             
             <Link to="/myrise" className="group/btn relative px-6 py-2 bg-white text-slate-950 rounded-lg text-xs font-black uppercase tracking-widest w-fit overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transform hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3">
@@ -193,7 +192,7 @@ const Discover: React.FC = () => {
         <div className="relative h-64 rounded-2xl overflow-hidden shadow-2xl group border border-slate-100 dark:border-slate-800">
           <div className="absolute inset-0 bg-slate-900" />
           <img 
-            src="https://www.thesmackdownhotel.com/images/wwe2k25/articles/wwe-2k25-showcase-match-list.jpg" 
+            src="https://image.pollinations.ai/prompt/roman%20reigns%20and%20the%20rock%20bloodline%20dynasty%20wwe%202k25%20showcase%20red%20lei%20ura%20dark%20background?width=800&height=400&nologo=true"
             alt="Showcase Background" 
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-60 dark:opacity-60 mix-blend-overlay"
           />
@@ -213,11 +212,11 @@ const Discover: React.FC = () => {
             </div>
             
             <h2 className="text-5xl font-black text-white italic tracking-tighter drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] transform -skew-x-12 leading-none mb-2">
-              <span className="text-transparent bg-clip-text bg-gradient-to-t from-red-600 to-white">SHOW</span>CASE
+              <span className="text-transparent bg-clip-text bg-gradient-to-t from-red-500 to-white">DYNASTY</span>
             </h2>
             
             <p className="text-slate-200 text-xs font-medium mb-6 max-w-xs drop-shadow-md leading-relaxed border-r-2 border-red-500 pr-3">
-              Revive los combates más grandes de la historia. Desbloquea leyendas y arenas clásicas.
+              Revive, Cambia y Crea la historia de la familia Anoa'i.
             </p>
             
             <Link to="/showcase" className="group/btn relative px-6 py-2 bg-red-950 text-white border border-red-800 rounded-lg text-xs font-black uppercase tracking-widest w-fit overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:shadow-[0_0_30px_rgba(239,68,68,0.4)] transform hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3">
@@ -244,7 +243,7 @@ const Discover: React.FC = () => {
             <div className="flex items-center gap-2 mb-3">
                {islandProgress.started ? (
                 <span className="inline-block px-2 py-0.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider rounded-sm shadow-[0_0_10px_rgba(245,158,11,0.5)]">
-                  En Progreso
+                  Capítulo {islandProgress.chapter}
                 </span>
                ) : (
                  <span className="inline-block px-2 py-0.5 bg-amber-600 text-white text-[10px] font-black uppercase tracking-wider rounded-sm shadow-[0_0_10px_rgba(217,119,6,0.5)]">
