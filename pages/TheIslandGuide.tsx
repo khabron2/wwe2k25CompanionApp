@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Skull, Map, ShieldAlert } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { loadProgress, saveProgress } from '../services/supabase';
 
 interface ZoneBlockProps {
   title: string;
@@ -56,16 +57,17 @@ const TheIslandGuide: React.FC = () => {
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const saved = localStorage.getItem('island-progress');
-    if (saved) {
-      setCompleted(JSON.parse(saved));
-    }
+    const load = async () => {
+      const data = await loadProgress('the_island');
+      if (data) setCompleted(data);
+    };
+    load();
   }, []);
 
   const toggleTask = (taskId: string) => {
     const newCompleted = { ...completed, [taskId]: !completed[taskId] };
     setCompleted(newCompleted);
-    localStorage.setItem('island-progress', JSON.stringify(newCompleted));
+    saveProgress('the_island', newCompleted);
   };
 
   const areAllCompleted = (ids: string[]) => ids.every(id => completed[id]);

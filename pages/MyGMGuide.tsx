@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Briefcase, TrendingUp, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { loadProgress, saveProgress } from '../services/supabase';
 
 interface PhaseBlockProps {
   title: string;
@@ -56,16 +57,17 @@ const MyGMGuide: React.FC = () => {
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const saved = localStorage.getItem('mygm-progress');
-    if (saved) {
-      setCompleted(JSON.parse(saved));
-    }
+    const load = async () => {
+      const data = await loadProgress('mygm');
+      if (data) setCompleted(data);
+    };
+    load();
   }, []);
 
   const toggleTask = (taskId: string) => {
     const newCompleted = { ...completed, [taskId]: !completed[taskId] };
     setCompleted(newCompleted);
-    localStorage.setItem('mygm-progress', JSON.stringify(newCompleted));
+    saveProgress('mygm', newCompleted);
   };
 
   const areAllCompleted = (ids: string[]) => ids.every(id => completed[id]);

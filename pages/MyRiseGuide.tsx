@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Split } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { loadProgress, saveProgress } from '../services/supabase';
 
 interface ChapterBlockProps {
   title: string;
@@ -58,10 +59,11 @@ const MyRiseGuide: React.FC = () => {
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const saved = localStorage.getItem('myrise-progress');
-    if (saved) {
-      setCompleted(JSON.parse(saved));
-    }
+    const load = async () => {
+      const data = await loadProgress('myrise');
+      if (data) setCompleted(data);
+    };
+    load();
   }, []);
 
   const toggleTask = (taskId: string, group: string[] = []) => {
@@ -70,7 +72,7 @@ const MyRiseGuide: React.FC = () => {
 
     const newCompleted = { ...completed, [taskId]: !completed[taskId] };
     setCompleted(newCompleted);
-    localStorage.setItem('myrise-progress', JSON.stringify(newCompleted));
+    saveProgress('myrise', newCompleted);
   };
 
   const isTaskDisabled = (taskId: string, group: string[]) => {
@@ -303,7 +305,7 @@ const MyRiseGuide: React.FC = () => {
                <MissionItem
                  key={id}
                  id={id}
-                 group={[...ch4MaleGroup, ...ch4FemaleGroup]} // Locking all others once one is picked? Or allow picking gender freely? Let's assume strict single path.
+                 group={[...ch4MaleGroup, ...ch4FemaleGroup]} 
                  title={["A: Rompiendo la Competencia", "B: Payaseando", "C: Candidato de Terceros"][idx]}
                  desc={["Personalidad: Atrevido", "Personalidad: Cómico", "Personalidad: Calculador"][idx]}
                  rewards={idx === 1 ? "Armas de Payaso (Bocina, Zapato, Martillo...)" : idx === 2 ? "Arena WCW nWo + Remera" : "Campeonato NXT Mutiny (Roto)"}

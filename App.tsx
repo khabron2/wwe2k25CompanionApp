@@ -4,6 +4,7 @@ import { Home, Users, Swords, User } from 'lucide-react';
 import Discover from './pages/Discover';
 import WrestlerList from './pages/WrestlerList';
 import WrestlerDetail from './pages/WrestlerDetail';
+import CreateWrestler from './pages/CreateWrestler';
 import MovesLibrary from './pages/MovesLibrary';
 import Profile from './pages/Profile';
 import MyRiseGuide from './pages/MyRiseGuide';
@@ -55,6 +56,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Discover />} />
           <Route path="/wrestlers" element={<WrestlerList />} />
           <Route path="/wrestler/:id" element={<WrestlerDetail />} />
+          <Route path="/create-wrestler" element={<CreateWrestler />} />
           <Route path="/moves" element={<MovesLibrary />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/myrise" element={<MyRiseGuide />} />

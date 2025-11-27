@@ -8,7 +8,7 @@ export const CATEGORIES: CategoryCard[] = [
   { id: 'c5', name: 'Leyenda', imageUrl: 'https://image.pollinations.ai/prompt/WWE%20hall%20of%20fame%20legend%20wrestler%20gold%20lighting?width=400&height=300&nologo=true' },
 ];
 
-const getWrestlerImage = (name: string, style: string = '') => {
+export const getWrestlerImage = (name: string, style: string = '') => {
   return `https://image.pollinations.ai/prompt/WWE%202K25%20game%20render%20portrait%20of%20${encodeURIComponent(name)}%20${style}%20hyperrealistic%20unreal%20engine%205%20lighting?width=400&height=533&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
 };
 
@@ -180,7 +180,7 @@ export const MOCK_WRESTLERS: Wrestler[] = [
 ].sort((a, b) => a.name.localeCompare(b.name));
 
 // Generate Moves
-const createBasicMoves = (wrestlerId: string, name: string): Move[] => {
+export const createBasicMoves = (wrestlerId: string, name: string): Move[] => {
   return [
     { id: `m_${wrestlerId}_f`, wrestlerId, name: `${name} Finisher`, category: MoveCategory.FINISHER, input: ['RT', 'A'], damage: 90 },
     { id: `m_${wrestlerId}_s`, wrestlerId, name: `${name} Signature`, category: MoveCategory.SIGNATURE, input: ['RT', 'X'], damage: 85 },

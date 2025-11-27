@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Plus } from 'lucide-react';
 import { getWrestlers } from '../services/wweService';
 import { WrestlerCard } from '../components/WrestlerCard';
 import { Brand, WrestlerStyle } from '../types';
+import { Link } from 'react-router-dom';
 
 const WrestlerList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,7 +15,16 @@ const WrestlerList: React.FC = () => {
   return (
     <div className="p-4 min-h-screen">
       <div className="sticky top-0 bg-gray-50 dark:bg-slate-950 pt-2 pb-4 z-10 transition-colors duration-300">
-        <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-4">Plantel</h1>
+        <div className="flex justify-between items-center mb-4">
+           <h1 className="text-2xl font-black text-slate-900 dark:text-white">Plantel</h1>
+           <Link 
+             to="/create-wrestler"
+             className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 p-2 rounded-full shadow-lg hover:scale-110 transition-transform"
+             title="Crear Luchador"
+           >
+             <Plus size={24} />
+           </Link>
+        </div>
         
         {/* Search & Filter Bar */}
         <div className="flex gap-2">

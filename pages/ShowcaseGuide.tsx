@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle2, Circle, Trophy, Lock, Video, Play, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { loadProgress, saveProgress } from '../services/supabase';
 
 interface MatchBlockProps {
   title: string;
@@ -55,16 +56,17 @@ const ShowcaseGuide: React.FC = () => {
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const saved = localStorage.getItem('showcase-progress');
-    if (saved) {
-      setCompleted(JSON.parse(saved));
-    }
+    const load = async () => {
+      const data = await loadProgress('showcase');
+      if (data) setCompleted(data);
+    };
+    load();
   }, []);
 
   const toggleTask = (taskId: string) => {
     const newCompleted = { ...completed, [taskId]: !completed[taskId] };
     setCompleted(newCompleted);
-    localStorage.setItem('showcase-progress', JSON.stringify(newCompleted));
+    saveProgress('showcase', newCompleted);
   };
 
   const areAllCompleted = (ids: string[]) => ids.every(id => completed[id]);

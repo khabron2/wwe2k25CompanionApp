@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle2, Circle, Trophy, Medal, Gamepad2, Globe, Users, Briefcase, Map, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { loadProgress, saveProgress } from '../services/supabase';
 
 interface AchievementCategoryProps {
   title: string;
@@ -55,16 +56,17 @@ const AchievementsGuide: React.FC = () => {
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const saved = localStorage.getItem('achievements-progress');
-    if (saved) {
-      setCompleted(JSON.parse(saved));
-    }
+    const load = async () => {
+      const data = await loadProgress('achievements');
+      if (data) setCompleted(data);
+    };
+    load();
   }, []);
 
   const toggleAchievement = (id: string) => {
     const newCompleted = { ...completed, [id]: !completed[id] };
     setCompleted(newCompleted);
-    localStorage.setItem('achievements-progress', JSON.stringify(newCompleted));
+    saveProgress('achievements', newCompleted);
   };
 
   const completedCount = Object.values(completed).filter(Boolean).length;
